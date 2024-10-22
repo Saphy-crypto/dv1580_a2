@@ -1,6 +1,8 @@
 # Compiler and Linking Variables
 CC = gcc
-CFLAGS = -Wall -Wextra -fPIC
+CFLAGS = -Wall -Wextra -fPIC $(EXTRA_CFLAGS)
+LDFLAGS = -Wl,-rpath,'$$ORIGIN'
+
 LIB_NAME = libmemory_manager.so
 
 # Libraries
@@ -24,24 +26,24 @@ $(LIB_NAME): $(OBJ)
 # Build the memory manager
 mmanager: $(LIB_NAME)
 
-# Build the linked list
+# Build the linked list object file
 list: linked_list.o
 
 # Compile test_memory_manager.o
 test_memory_manager.o: test_memory_manager.c
-	$(CC) $(CFLAGS) -c test_memory_manager.c -o test_memory_manager.o
+	$(CC) $(CFLAGS) -c $< -o $@
 
-# Test target to run the memory manager test program
+# Build the test_memory_manager executable
 test_mmanager: test_memory_manager.o $(LIB_NAME)
-	$(CC) -o test_memory_manager test_memory_manager.o -L. -lmemory_manager $(LIBS)
+	$(CC) -o test_memory_manager test_memory_manager.o -L. -lmemory_manager $(LIBS) $(LDFLAGS)
 
 # Compile test_linked_list.o
 test_linked_list.o: test_linked_list.c
-	$(CC) $(CFLAGS) -c test_linked_list.c -o test_linked_list.o
+	$(CC) $(CFLAGS) -c $< -o $@
 
-# Test target to run the linked list test program
+# Build the test_linked_list executable
 test_list: test_linked_list.o linked_list.o $(LIB_NAME)
-	$(CC) -o test_linked_list test_linked_list.o linked_list.o -L. -lmemory_manager $(LIBS)
+	$(CC) -o test_linked_list test_linked_list.o linked_list.o -L. -lmemory_manager $(LIBS) $(LDFLAGS)
 
 # Run tests
 run_tests: run_test_mmanager run_test_list
