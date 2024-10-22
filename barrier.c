@@ -1,6 +1,5 @@
 // barrier.c
 #include <pthread.h>
-#include <stdlib.h>
 #include "memory_manager.h" // Ensure this header is available if needed
 
 typedef struct {
