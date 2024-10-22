@@ -25,6 +25,8 @@ static MemBlock* free_list = NULL; // linked list of free memory blocks
 static MemBlock* allocated_list = NULL;// linked list of allocated memory blocks
 static pthread_mutex_t mem_mutex;  // mutex to ensure thread-safe operations
 
+static pthread_mutex_t mem_mutex = PTHREAD_MUTEX_INITIALIZER; // Mutex for memory operations
+
 /**
  * initializes the memory manager by setting up the memory pool and the initial free list.
  * this function should be called once at the beginning of the program.
@@ -33,7 +35,7 @@ static pthread_mutex_t mem_mutex;  // mutex to ensure thread-safe operations
  */
 void mem_init(size_t size) {
     // initialize the mutex to protect memory management operations.
-    pthread_mutex_init(&mem_mutex, NULL);
+   // pthread_mutex_init(&mem_mutex, NULL);
 
     // check if the memory manager is already initialized to prevent re-initialization.
     if (memory_pool != NULL) {
@@ -313,5 +315,5 @@ void mem_deinit() {
 
     //unlock and destroy the mutex as it's no longer needed
     pthread_mutex_unlock(&mem_mutex);
-    pthread_mutex_destroy(&mem_mutex);
+    //pthread_mutex_destroy(&mem_mutex);
 }
