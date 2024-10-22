@@ -27,7 +27,7 @@ TESTER_MEMORY_SRC = test_memory_manager.c
 TESTER_MEMORY_OBJ = test_memory_manager.o
 
 # Default Target: Build the memory manager library, linked list application, and test executables
-all: mmanager list test_linked_list test_memory_manager
+all: mmanager list test_linked_list test_memory_manager test_list
 
 # Compile the memory manager into a shared library
 mmanager: $(MEM_SRC)
@@ -49,9 +49,13 @@ test_memory_manager: $(TESTER_MEMORY_SRC) linked_list.o mmanager
 	$(CC) $(CFLAGS) -c test_memory_manager.c -o test_memory_manager.o
 	$(CC) test_memory_manager.o linked_list.o -L. -lmemory_manager -o test_memory_manager $(LIBS)
 
+# Compile test_list executable (alias for test_memory_manager)
+test_list: test_memory_manager.o linked_list.o mmanager
+	$(CC) test_memory_manager.o linked_list.o -L. -lmemory_manager -o test_list $(LIBS)
+
 # Clean up generated files
 clean:
-	rm -f *.o $(LIBNAME) test_linked_list test_memory_manager
+	rm -f *.o $(LIBNAME) test_linked_list test_memory_manager test_list
 
 # Phony Targets
-.PHONY: all mmanager list test_linked_list test_memory_manager clean
+.PHONY: all mmanager list test_linked_list test_memory_manager test_list clean
