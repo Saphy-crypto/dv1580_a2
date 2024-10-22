@@ -1,6 +1,8 @@
 # Compiler and Linking Variables
 CC = gcc
 CFLAGS = -Wall -Wextra -fPIC
+LDFLAGS = -Wl,-rpath,'$$ORIGIN'  # Use $$ORIGIN to set rpath to the directory of the executable
+
 LIB_NAME = libmemory_manager.so
 
 # Libraries
@@ -31,17 +33,17 @@ list: linked_list.o
 test_memory_manager.o: test_memory_manager.c
 	$(CC) $(CFLAGS) -c test_memory_manager.c -o test_memory_manager.o
 
-# Test target to run the memory manager test program
+# Test target to build the memory manager test program
 test_mmanager: test_memory_manager.o $(LIB_NAME)
-	$(CC) -o test_memory_manager test_memory_manager.o -L. -lmemory_manager $(LIBS)
+	$(CC) -o test_memory_manager test_memory_manager.o -L. -lmemory_manager $(LIBS) $(LDFLAGS)
 
 # Compile test_linked_list.o
 test_linked_list.o: test_linked_list.c
 	$(CC) $(CFLAGS) -c test_linked_list.c -o test_linked_list.o
 
-# Test target to run the linked list test program
+# Test target to build the linked list test program
 test_list: test_linked_list.o linked_list.o $(LIB_NAME)
-	$(CC) -o test_linked_list test_linked_list.o linked_list.o -L. -lmemory_manager $(LIBS)
+	$(CC) -o test_linked_listCG test_linked_list.o linked_list.o -L. -lmemory_manager $(LIBS) $(LDFLAGS)
 
 # Run tests
 run_tests: run_test_mmanager run_test_list
@@ -52,11 +54,11 @@ run_test_mmanager:
 
 # Run test cases for the linked list
 run_test_list:
-	./test_linked_list
+	./test_linked_listCG
 
 # Clean target to clean up build files
 clean:
-	rm -f *.o $(LIB_NAME) test_memory_manager test_linked_list
+	rm -f *.o $(LIB_NAME) test_memory_manager test_linked_list test_linked_listCG
 
 # Phony Targets
 .PHONY: all mmanager list test_mmanager test_list run_tests run_test_mmanager run_test_list clean
