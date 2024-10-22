@@ -20,7 +20,7 @@ $(LIB_NAME): $(OBJ)
 	$(CC) -shared -o $@ $(OBJ)
 
 # Rule to compile source files into object files
-%.o: %.c
+%.o: %.c %.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # Build the memory manager
@@ -29,36 +29,17 @@ mmanager: $(LIB_NAME)
 # Build the linked list object file
 list: linked_list.o
 
-# Compile test_memory_manager.o
-test_memory_manager.o: test_memory_manager.c
-	$(CC) $(CFLAGS) -c $< -o $@
-
 # Build the test_memory_manager executable
 test_mmanager: test_memory_manager.o $(LIB_NAME)
 	$(CC) -o test_memory_manager test_memory_manager.o -L. -lmemory_manager $(LIBS) $(LDFLAGS)
-
-# Compile test_linked_list.o
-test_linked_list.o: test_linked_list.c
-	$(CC) $(CFLAGS) -c $< -o $@
 
 # Build the test_linked_list executable
 test_list: test_linked_list.o linked_list.o $(LIB_NAME)
 	$(CC) -o test_linked_list test_linked_list.o linked_list.o -L. -lmemory_manager $(LIBS) $(LDFLAGS)
 
-# Run tests
-run_tests: run_test_mmanager run_test_list
-
-# Run test cases for the memory manager
-run_test_mmanager:
-	./test_memory_manager
-
-# Run test cases for the linked list
-run_test_list:
-	./test_linked_list
-
 # Clean target to clean up build files
 clean:
-	rm -f *.o $(LIB_NAME) test_memory_manager test_linked_list
+	rm -f *.o $(LIB_NAME) test_memory_manager test_linked_list test_linked_listCG
 
 # Phony Targets
-.PHONY: all mmanager list test_mmanager test_list run_tests run_test_mmanager run_test_list clean
+.PHONY: all mmanager list test_mmanager test_list clean
