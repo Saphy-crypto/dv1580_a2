@@ -49,13 +49,14 @@ test_memory_manager: $(TESTER_MEMORY_SRC) linked_list.o mmanager
 	$(CC) $(CFLAGS) -c test_memory_manager.c -o test_memory_manager.o
 	$(CC) test_memory_manager.o linked_list.o -L. -lmemory_manager -o test_memory_manager $(LIBS)
 
-# Compile test_list executable (alias for test_memory_manager)
-test_list: test_memory_manager.o linked_list.o mmanager
-	$(CC) test_memory_manager.o linked_list.o -L. -lmemory_manager -o test_list $(LIBS)
+# Compile test_list executable with CODEGRADE flag
+test_list: $(TESTER_LINKED_SRC) linked_list.o mmanager
+	$(CC) $(CFLAGS) -DCODEGRADE -c test_linked_list.c -o test_linked_listCG.o
+	$(CC) test_linked_listCG.o linked_list.o -L. -lmemory_manager -o test_linked_listCG $(LIBS)
 
 # Clean up generated files
 clean:
-	rm -f *.o $(LIBNAME) test_linked_list test_memory_manager test_list
+	rm -f *.o $(LIBNAME) test_linked_list test_memory_manager test_list test_linked_listCG
 
 # Phony Targets
 .PHONY: all mmanager list test_linked_list test_memory_manager test_list clean
