@@ -23,7 +23,7 @@ static char* memory_pool = NULL;   //pointer to the start of the memory pool
 static size_t pool_size = 0;// total size of the memory pool
 static MemBlock* free_list = NULL; // linked list of free memory blocks
 static MemBlock* allocated_list = NULL;// linked list of allocated memory blocks
-static pthread_mutex_t mem_mutex;  // mutex to ensure thread-safe operations
+//static pthread_mutex_t mem_mutex;  // mutex to ensure thread-safe operations
 
 static pthread_mutex_t mem_mutex = PTHREAD_MUTEX_INITIALIZER; // Mutex for memory operations
 
@@ -235,55 +235,57 @@ void mem_free(void* ptr) {
  * @return pointer to the resized memory block, or null if resizing fails
  */
 void* mem_resize(void* ptr, size_t size) {
-    // if the pointer is NULL, behave like mem_alloc
+    // If the pointer is NULL, behave like mem_alloc
     if (ptr == NULL) {
         return mem_alloc(size);
     }
-    //if the new size is zero, free the block
+    // If the new size is zero, free the block
     if (size == 0) {
         mem_free(ptr);
         return NULL;
     }
 
-    //lock the mutex to ensure exclusive access during resizing
+    // Lock the mutex to ensure exclusive access during resizing
     pthread_mutex_lock(&mem_mutex);
 
     MemBlock* current = allocated_list;
 
-    //search for the allocated block corresponding to the pointer
+    // Search for the allocated block corresponding to the pointer
     while (current != NULL) {
         if (current->start == ptr) {
             if (current->size >= size) {
-                //current block is already large enough; no need to resize
+                // Current block is already large enough; no need to resize
                 pthread_mutex_unlock(&mem_mutex);
                 return ptr;
             } else {
-                //current block is too small, need to allocate a new block
-                pthread_mutex_unlock(&mem_mutex); // unlock before allocating to prevent deadlock
-
+                // Current block is too small, need to allocate a new block
+                // Allocate a new block while still holding the mutex
                 void* new_ptr = mem_alloc(size);
                 if (new_ptr == NULL) {
-                    //allocation failed, cannot resize
+                    // Allocation failed, cannot resize
+                    pthread_mutex_unlock(&mem_mutex);
                     return NULL;
                 }
 
-                // copy the data from the old block to the new block
+                // Copy the data from the old block to the new block
                 memcpy(new_ptr, ptr, current->size);
 
-                //free the old block
+                // Free the old block
                 mem_free(ptr);
 
-                return new_ptr; //return the pointer to the new block
+                pthread_mutex_unlock(&mem_mutex);
+                return new_ptr; // Return the pointer to the new block
             }
         }
         current = current->next;
     }
 
-    //if the pointer was not found in the allocated list, it's an invalid resize attempt
+    // If the pointer was not found in the allocated list, it's an invalid resize attempt
     fprintf(stderr, "Attempted to resize a pointer that was not allocated.\n");
     pthread_mutex_unlock(&mem_mutex);
     return NULL;
 }
+
 
 /**
  * deinitializes the memory manager by freeing the memory pool and all associated structures
@@ -294,26 +296,27 @@ void mem_deinit() {
     pthread_mutex_lock(&mem_mutex);
 
     if (memory_pool != NULL) {
-        free(memory_pool);//free the memory pool
-        memory_pool = NULL; // reset the pool pointer
-        pool_size = 0; // reset the pool size
+        free(memory_pool); // Free the memory pool
+        memory_pool = NULL; // Reset the pool pointer
+        pool_size = 0; // Reset the pool size
     }
 
-    //f all blocks in the free list
+    // Free all blocks in the free list
     while (free_list != NULL) {
         MemBlock* temp = free_list;
         free_list = free_list->next;
         free(temp);
     }
 
-    //free all blocks in the allocated list
+    // Free all blocks in the allocated list
     while (allocated_list != NULL) {
         MemBlock* temp = allocated_list;
         allocated_list = allocated_list->next;
         free(temp);
     }
 
-    //unlock and destroy the mutex as it's no longer needed
+    // unlock the mutex after deallocation and merging
     pthread_mutex_unlock(&mem_mutex);
-    //pthread_mutex_destroy(&mem_mutex);
+
+    // pthread_mutex_destroy(&mem_mutex);
 }
