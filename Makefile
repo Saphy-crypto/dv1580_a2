@@ -10,6 +10,16 @@ LIBS = -lm -pthread
 SRC = memory_manager.c
 OBJ = $(SRC:.c=.o)
 
+# Additional Source Files
+LINKED_LIST_SRC = linked_list.c
+LINKED_LIST_OBJ = linked_list.o
+
+TEST_MEMORY_MANAGER_SRC = test_memory_manager.c
+TEST_MEMORY_MANAGER_OBJ = test_memory_manager.o
+
+TEST_LINKED_LIST_SRC = test_linked_list.c
+TEST_LINKED_LIST_OBJ = test_linked_list.o
+
 # Default target
 all: mmanager list test_mmanager test_list
 
@@ -25,23 +35,23 @@ $(LIB_NAME): $(OBJ)
 mmanager: $(LIB_NAME)
 
 # Build the linked list
-list: linked_list.o
+list: $(LINKED_LIST_OBJ)
+
+# Compile test_memory_manager.o
+$(TEST_MEMORY_MANAGER_OBJ): $(TEST_MEMORY_MANAGER_SRC)
+	$(CC) $(CFLAGS) -c $< -o $@
 
 # Test target to run the memory manager test program
-test_mmanager: test_memory_manager.o $(LIB_NAME)
-	$(CC) -o test_memory_manager test_memory_manager.o -L. -lmemory_manager $(LIBS)
+test_mmanager: $(TEST_MEMORY_MANAGER_OBJ) $(LIB_NAME)
+	$(CC) -o test_memory_manager $(TEST_MEMORY_MANAGER_OBJ) -L. -lmemory_manager $(LIBS)
+
+# Compile test_linked_list.o
+$(TEST_LINKED_LIST_OBJ): $(TEST_LINKED_LIST_SRC)
+	$(CC) $(CFLAGS) -c $< -o $@
 
 # Test target to run the linked list test program
-test_list: test_linked_list.o linked_list.o $(LIB_NAME)
+test_list: $(TEST_LINKED_LIST_OBJ) $(LINKED_LIST_OBJ) $(LIB_NAME)
 	$(CC) -o test_linked_list test_linked_list.o linked_list.o -L. -lmemory_manager $(LIBS)
-
-# Compile test_memory_manager.o with CFLAGS if needed
-test_memory_manager.o: test_memory_manager.c
-	$(CC) $(CFLAGS) -c test_memory_manager.c -o test_memory_manager.o
-
-# Compile test_linked_list.o with CFLAGS if needed
-test_linked_list.o: test_linked_list.c
-	$(CC) $(CFLAGS) -c test_linked_list.c -o test_linked_list.o
 
 # Run tests
 run_tests: run_test_mmanager run_test_list
@@ -56,7 +66,7 @@ run_test_list:
 
 # Clean target to clean up build files
 clean:
-	rm -f *.o $(LIB_NAME) test_memory_manager test_linked_list linked_list.o
+	rm -f *.o $(LIB_NAME) test_memory_manager test_linked_list
 
 # Phony Targets
 .PHONY: all mmanager list test_mmanager test_list run_tests run_test_mmanager run_test_list clean
