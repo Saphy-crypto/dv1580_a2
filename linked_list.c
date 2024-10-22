@@ -11,9 +11,7 @@
 
 //mutex to ensure that linked list operations are thread-safe
 //this mutex protects all operations that modify or traverse the list
-// Global variables
-static pthread_mutex_t list_mutex = PTHREAD_MUTEX_INITIALIZER; // Mutex for linked list operations
-
+static pthread_mutex_t list_mutex;
 
 /**
  * initializes the linked list and the memory manager
@@ -24,7 +22,7 @@ static pthread_mutex_t list_mutex = PTHREAD_MUTEX_INITIALIZER; // Mutex for link
  */
 void list_init(Node** head, size_t size) {
     // initialize the mutex to protect linked list operations
-    //pthread_mutex_init(&list_mutex, NULL);
+    pthread_mutex_init(&list_mutex, NULL);
 
     // initialize the custom memory manager with the specified pool size
     mem_init(size);
@@ -338,5 +336,5 @@ void list_cleanup(Node** head) {
     pthread_mutex_unlock(&list_mutex);
 
     //destroy the mutex as it's no longer needed
-    //pthread_mutex_destroy(&list_mutex);
+    pthread_mutex_destroy(&list_mutex);
 }
