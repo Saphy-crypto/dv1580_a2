@@ -14,7 +14,7 @@
 #include "common_defs.h"
 
 #include <unistd.h>
-
+#include <stdint.h> 
 #define debug 0
 
 #include "gitdata.h"
