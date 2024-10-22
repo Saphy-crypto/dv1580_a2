@@ -12,6 +12,7 @@
 #include <sys/mman.h>
 #include <fcntl.h>
 #include "common_defs.h"
+#include <stdint.h> 
 
 #include <unistd.h>
 
