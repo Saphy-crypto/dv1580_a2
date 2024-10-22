@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <pthread.h>
 
+#//include <stdint.h> 
 
 // structure representing a block of memory within the pool.
 //each block knows its starting address, size, and the next block in the list.

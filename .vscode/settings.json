@@ -1,6 +1,8 @@
 {
     "files.associations": {
         "string.h": "c",
-        "unistd.h": "c"
+        "unistd.h": "c",
+        "gitdata.h": "c",
+        "mman.h": "c"
     }
 }
