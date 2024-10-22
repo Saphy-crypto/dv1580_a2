@@ -1,46 +1,62 @@
-
-# Compiler
+# Compiler and Linking Variables
 CC = gcc
-
-# Compiler Flags
-CFLAGS = -Wall -Wextra -fPIC -pthread
-
-# Library Flags
-LDFLAGS = -shared
+CFLAGS = -Wall -Wextra -fPIC
+LIB_NAME = libmemory_manager.so
 
 # Libraries
 LIBS = -lm -pthread
 
-# Targets
-LIBNAME = libmemory_manager.so
+# Source and Object Files
+SRC = memory_manager.c
+OBJ = $(SRC:.c=.o)
 
-# Source Files
-MEM_SRC = memory_manager.c
-MEM_OBJ = memory_manager.o
+# Default target
+all: mmanager list test_mmanager test_list
 
-LIST_SRC = linked_list.c
-LIST_OBJ = linked_list.o
+# Rule to create the dynamic library
+$(LIB_NAME): $(OBJ)
+	$(CC) -shared -o $@ $(OBJ)
 
-TESTER_SRC = test_linked_list.c
-TESTER_OBJ = test_linked_list.o
+# Rule to compile source files into object files
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
 
-# Default Target: Build both the memory manager library and the linked list application
-all: mmanager list
+# Build the memory manager
+mmanager: $(LIB_NAME)
 
-# Compile the memory manager into a shared library
-mmanager: $(MEM_SRC)
-	$(CC) $(CFLAGS) -c $(MEM_SRC) -o $(MEM_OBJ)
-	$(CC) $(LDFLAGS) -o $(LIBNAME) $(MEM_OBJ)
+# Build the linked list
+list: linked_list.o
 
-# Compile the linked list application and link it with the memory manager library
-list: $(LIST_SRC) $(TESTER_SRC) mmanager
-	$(CC) $(CFLAGS) -c $(LIST_SRC) -o $(LIST_OBJ)
-	$(CC) $(CFLAGS) -c $(TESTER_SRC) -o $(TESTER_OBJ)
-	$(CC) $(TESTER_OBJ) $(LIST_OBJ) -L. -lmemory_manager -o test_linked_list $(LIBS)
+# Test target to run the memory manager test program
+test_mmanager: test_memory_manager.o $(LIB_NAME)
+	$(CC) -o test_memory_manager test_memory_manager.o -L. -lmemory_manager $(LIBS)
 
-# Clean up generated files
+# Test target to run the linked list test program
+test_list: test_linked_list.o linked_list.o $(LIB_NAME)
+	$(CC) -o test_linked_list test_linked_list.o linked_list.o -L. -lmemory_manager $(LIBS)
+
+# Compile test_memory_manager.o with CFLAGS if needed
+test_memory_manager.o: test_memory_manager.c
+	$(CC) $(CFLAGS) -c test_memory_manager.c -o test_memory_manager.o
+
+# Compile test_linked_list.o with CFLAGS if needed
+test_linked_list.o: test_linked_list.c
+	$(CC) $(CFLAGS) -c test_linked_list.c -o test_linked_list.o
+
+# Run tests
+run_tests: run_test_mmanager run_test_list
+
+# Run test cases for the memory manager
+run_test_mmanager:
+	./test_memory_manager
+
+# Run test cases for the linked list
+run_test_list:
+	./test_linked_list
+
+# Clean target to clean up build files
 clean:
-	rm -f *.o $(LIBNAME) test_linked_list
+	rm -f *.o $(LIB_NAME) test_memory_manager test_linked_list linked_list.o
 
 # Phony Targets
-.PHONY: all mmanager list clean
+.PHONY: all mmanager list test_mmanager test_list run_tests run_test_mmanager run_test_list clean
