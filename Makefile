@@ -20,6 +20,9 @@ TEST_MEMORY_MANAGER_OBJ = test_memory_manager.o
 TEST_LINKED_LIST_SRC = test_linked_list.c
 TEST_LINKED_LIST_OBJ = test_linked_list.o
 
+TEST_LINKED_LIST_CG_SRC = test_linked_list.c
+TEST_LINKED_LIST_CG_OBJ = test_linked_listCG.o
+
 # Default target
 all: mmanager list test_mmanager test_list
 
@@ -43,15 +46,19 @@ $(TEST_MEMORY_MANAGER_OBJ): $(TEST_MEMORY_MANAGER_SRC)
 
 # Test target to run the memory manager test program
 test_mmanager: $(TEST_MEMORY_MANAGER_OBJ) $(LIB_NAME)
-	$(CC) -o test_memory_manager $(TEST_MEMORY_MANAGER_OBJ) -L. -lmemory_manager $(LIBS)
+	$(CC) -o test_memory_manager $(TEST_MEMORY_MANAGER_OBJ) -L. -lmemory_manager $(LIBS) -Wl,-rpath=.
 
 # Compile test_linked_list.o
 $(TEST_LINKED_LIST_OBJ): $(TEST_LINKED_LIST_SRC)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# Test target to run the linked list test program
-test_list: $(TEST_LINKED_LIST_OBJ) $(LINKED_LIST_OBJ) $(LIB_NAME)
-	$(CC) -o test_linked_list test_linked_list.o linked_list.o -L. -lmemory_manager $(LIBS)
+# Compile test_linked_listCG.o with -DCODEGRADE flag
+$(TEST_LINKED_LIST_CG_OBJ): $(TEST_LINKED_LIST_CG_SRC)
+	$(CC) $(CFLAGS) -DCODEGRADE -c $< -o $@
+
+# Test target to run the linked list test program with CODEGRADE
+test_list: $(TEST_LINKED_LIST_CG_OBJ) $(LINKED_LIST_OBJ) $(LIB_NAME)
+	$(CC) -o test_linked_listCG $(TEST_LINKED_LIST_CG_OBJ) $(LINKED_LIST_OBJ) -L. -lmemory_manager $(LIBS) -Wl,-rpath=.
 
 # Run tests
 run_tests: run_test_mmanager run_test_list
@@ -62,11 +69,11 @@ run_test_mmanager:
 
 # Run test cases for the linked list
 run_test_list:
-	./test_linked_list
+	./test_linked_listCG
 
 # Clean target to clean up build files
 clean:
-	rm -f *.o $(LIB_NAME) test_memory_manager test_linked_list
+	rm -f *.o $(LIB_NAME) test_memory_manager test_linked_listCG test_linked_list
 
 # Phony Targets
 .PHONY: all mmanager list test_mmanager test_list run_tests run_test_mmanager run_test_list clean
